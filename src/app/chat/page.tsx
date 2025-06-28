@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { FormEvent, useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import ChatMessage from "@/components/ChatMessage";
 
 interface Message {
   role: "user" | "assistant";
@@ -21,6 +22,7 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [threadId, setThreadId] = useState<string | null>(initialThreadId);
   const [isLoading, setIsLoading] = useState(false);
+  const [diagramMode, setDiagramMode] = useState(false);
 
   // Load existing messages if a thread ID is provided via query params
   useEffect(() => {
@@ -64,6 +66,7 @@ export default function ChatPage() {
           message: input,
           assistantId,
           threadId,
+          diagramMode,
         }),
       });
 
@@ -129,19 +132,22 @@ export default function ChatPage() {
                   key={i}
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  <div
-                    className={`p-3 rounded-lg ${
-                      msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
+                  <ChatMessage content={msg.content} role={msg.role} />
                 </div>
               ))}
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSubmit} className="flex gap-2">
+            <form onSubmit={handleSubmit} className="flex gap-2 items-center">
+              <label className="flex items-center gap-1 text-sm mr-2">
+                <input
+                  type="checkbox"
+                  checked={diagramMode}
+                  onChange={(e) => setDiagramMode(e.target.checked)}
+                  disabled={isLoading}
+                />
+                Diagram
+              </label>
               <input
                 type="text"
                 value={input}
