@@ -16,6 +16,7 @@ import {
   useTransition,
 } from "react";
 import { uploadFiles } from "@/lib/actions/uploadAction";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [files, setFiles] = useState<FileList | null>(null);
@@ -23,6 +24,7 @@ export default function Home() {
   const [isDragging, setIsDragging] = useState(false);
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -67,8 +69,18 @@ export default function Home() {
     }
 
     startTransition(async () => {
+      setMessage("Uploading and processing files...");
       const result = await uploadFiles(formData);
-      setMessage(result.message);
+
+      if (result.status === "success") {
+        setMessage(result.message);
+        router.push(
+          `/chat?assistantId=${result.assistantId}&threadId=${result.threadId}`,
+        );
+      } else {
+        setMessage(result.message);
+      }
+
       setFiles(null);
       formRef.current?.reset();
     });
@@ -183,7 +195,7 @@ export default function Home() {
               type="submit"
               disabled={isPending || !files || files.length === 0}
             >
-              {isPending ? "Uploading..." : "Dateien hochladen"}
+              {isPending ? "Erstelle Assistent..." : "Dateien hochladen"}
             </Button>
           </form>
           {message && <p className="mt-4 text-center text-sm">{message}</p>}
