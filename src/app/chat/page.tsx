@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -21,6 +21,30 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [threadId, setThreadId] = useState<string | null>(initialThreadId);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Load existing messages if a thread ID is provided via query params
+  useEffect(() => {
+    const loadMessages = async () => {
+      if (!initialThreadId) return;
+
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/chat?threadId=${initialThreadId}`);
+        if (!res.ok) throw new Error("Failed to fetch thread messages");
+
+        const { messages: existingMessages } = await res.json();
+        setMessages(existingMessages);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadMessages();
+    // We intentionally want this to run only once when the component mounts
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

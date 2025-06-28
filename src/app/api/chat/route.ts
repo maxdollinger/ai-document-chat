@@ -66,4 +66,45 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const threadId = req.nextUrl.searchParams.get("threadId");
+
+    if (!threadId) {
+      return NextResponse.json(
+        { error: "threadId is required" },
+        { status: 400 }
+      );
+    }
+
+    // Fetch all messages in the thread
+    const messagesResponse = await openai.beta.threads.messages.list(threadId);
+
+    // OpenAI returns the newest messages first – reverse for chronological order
+    const formattedMessages = messagesResponse.data
+      .filter((m) => m.content.length && m.content[0].type === "text")
+      .map((m) => ({
+        role: m.role as "user" | "assistant",
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore – content[0] is ensured to be text above
+        content: m.content[0].text.value as string,
+      }))
+      .reverse();
+
+    return NextResponse.json({ messages: formattedMessages });
+  } catch (error) {
+    console.error(error);
+    if (error instanceof OpenAI.APIError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status }
+      );
+    }
+    return NextResponse.json(
+      { error: "An error occurred" },
+      { status: 500 }
+    );
+  }
 } 
