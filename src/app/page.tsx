@@ -8,13 +8,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useState, type ChangeEvent, type FormEvent, type DragEvent } from "react";
+import {
+  useState,
+  type ChangeEvent,
+  type DragEvent,
+  useRef,
+  useTransition,
+} from "react";
+import { uploadFiles } from "./actions";
 
 export default function Home() {
   const [files, setFiles] = useState<FileList | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -52,40 +60,18 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = (formData: FormData) => {
     if (!files || files.length === 0) {
       setMessage("Please select files to upload.");
       return;
     }
 
-    setIsUploading(true);
-    setMessage("Uploading...");
-    const formData = new FormData();
-    for (let i = 0; i < files.length; i++) {
-      formData.append(files[i].name, files[i]);
-    }
-
-    try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage(data.message);
-      } else {
-        setMessage(`Error: ${data.message}`);
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      setMessage("An error occurred during upload.");
-    } finally {
-      setIsUploading(false);
+    startTransition(async () => {
+      const result = await uploadFiles(formData);
+      setMessage(result.message);
       setFiles(null);
-    }
+      formRef.current?.reset();
+    });
   };
 
   return (
@@ -136,7 +122,8 @@ export default function Home() {
 
         <section className="mt-12 w-full">
           <form
-            onSubmit={handleSubmit}
+            ref={formRef}
+            action={handleSubmit}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
             onDragOver={handleDragOver}
@@ -161,10 +148,13 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground/80">
                   Unterstützt mehrere Dateien
                 </p>
+                <p className="text-xs text-muted-foreground/80 mt-1">
+                  Maximale Gesamtgröße: 15MB
+                </p>
               </div>
               <input
                 id="file-upload"
-                name="file-upload"
+                name="files"
                 type="file"
                 multiple
                 onChange={handleFileChange}
@@ -191,9 +181,9 @@ export default function Home() {
 
             <Button
               type="submit"
-              disabled={isUploading || !files || files.length === 0}
+              disabled={isPending || !files || files.length === 0}
             >
-              {isUploading ? "Uploading..." : "Dateien hochladen"}
+              {isPending ? "Uploading..." : "Dateien hochladen"}
             </Button>
           </form>
           {message && <p className="mt-4 text-center text-sm">{message}</p>}
