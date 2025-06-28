@@ -75,7 +75,7 @@ export default function Home() {
       if (result.status === "success") {
         setMessage(result.message);
         router.push(
-          `/chat?assistantId=${result.assistantId}&threadId=${result.threadId}`,
+          `/chat?vectorStoreId=${result.vectorStoreId}`,
         );
       } else {
         setMessage(result.message);

@@ -11,8 +11,7 @@ export async function uploadFiles(
 ): Promise<{
   status: "success" | "error";
   message: string;
-  assistantId?: string;
-  threadId?: string;
+  vectorStoreId?: string;
 }> {
   try {
     const files = formData.getAll("files") as File[];
@@ -20,56 +19,49 @@ export async function uploadFiles(
       return { status: "error", message: "No files were uploaded." };
     }
 
-    const uploadedFiles = await Promise.all(
-      files.map((file) => openai.files.create({ file, purpose: "assistants" })),
-    );
-
     const vectorStore = await openai.vectorStores.create({
       name: `File Search Vector Store - ${new Date().toISOString()}`,
-      file_ids: uploadedFiles.map((file) => file.id),
     });
 
-    // It can take a few seconds for the vector store to be ready.
-    // We'll poll the status until it's "completed".
-    await new Promise<void>((resolve, reject) => {
-      const poll = setInterval(async () => {
-        try {
-          const status = await openai.vectorStores.retrieve(vectorStore.id);
-          if (status.status === "completed") {
-            clearInterval(poll);
-            resolve();
-          }
-        } catch (error) {
-          clearInterval(poll);
-          reject(error);
-        }
-      }, 5000);
-    });
+    await openai.vectorStores.fileBatches.uploadAndPoll(vectorStore.id, { files });
 
-    const assistant = await openai.beta.assistants.create({
-      name: "AI Document Chat",
-      instructions: "You are a helpful assistant that can answer questions about documents.",
-      model: "gpt-4o",
-      tools: [{ type: "file_search" }],
-      tool_resources: {
-        file_search: {
+    const response = await openai.responses.create({
+      model: "gpt-4o-mini",
+      input: "Welchen netto umsatz gab es 2020/21?",
+      tools: [{
+          type: "file_search",
           vector_store_ids: [vectorStore.id],
-        },
-      },
-    });
+      }],
+  });;
 
-    const thread = await openai.beta.threads.create();
+    console.log(response.output);
 
     return {
       status: "success",
-      message: "Assistant created successfully!",
-      assistantId: assistant.id,
-      threadId: thread.id,
+      vectorStoreId: vectorStore.id,
+      message: "vector store created",
     };
   } catch (error) {
     console.error("Upload error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "An unknown error occurred.";
     return { status: "error", message: `Upload failed: ${errorMessage}` };
+  }
+}
+
+async function cleanupResources(vectorStoreId: string) {
+  try {
+    console.log("Cleaning up resources...");
+    const files = await openai.vectorStores.files.list(vectorStoreId);
+    for (const file of files.data) {
+      await openai.vectorStores.files.delete(file.id, {vector_store_id: vectorStoreId});
+    }
+
+    await openai.vectorStores.delete(vectorStoreId);
+
+    console.log("Cleanup complete.");
+  } catch (cleanupError) {
+    console.error("Error during cleanup:", cleanupError);
+    // Don't re-throw, as the primary operation might have succeeded.
   }
 } 

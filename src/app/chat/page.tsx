@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
-  const assistantId = searchParams.get("assistantId");
-  const threadId = searchParams.get("threadId");
+  const assistantId = searchParams.get("vectorStoreId");
 
   return (
     <main className="flex min-h-screen flex-col items-center p-8 sm:p-24 bg-background text-foreground">
@@ -27,10 +26,7 @@ export default function ChatPage() {
           <CardContent>
             <div className="p-4 border rounded-lg">
               <p>
-                <strong>Assistant ID:</strong> {assistantId}
-              </p>
-              <p>
-                <strong>Thread ID:</strong> {threadId}
+                <strong>Vectorstore ID:</strong> {assistantId}
               </p>
             </div>
             {/* Chat interface will go here */}
