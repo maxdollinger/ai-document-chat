@@ -134,7 +134,7 @@ export default function ChatPage() {
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSubmit} className="flex gap-2 items-center pt-4 sticky bottom-0 bg-background">
+            <form onSubmit={handleSubmit} className="flex gap-2 items-center py-4 sticky bottom-0 bg-background">
               <label className="flex items-center gap-1 text-sm mr-2">
                 <input
                   type="checkbox"

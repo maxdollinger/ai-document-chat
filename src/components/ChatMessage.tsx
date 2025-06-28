@@ -47,7 +47,7 @@ export default function ChatMessage({ content, role, className }: ChatMessagePro
     role === "user" ? "bg-primary text-primary-foreground" : "bg-muted";
 
   return (
-    <div className={`p-3 rounded-lg w-full overflow-x-auto ${baseClass} ${className ?? ""}`}>
+    <div className={`p-3 rounded-lg w-full max-w-2xl overflow-x-auto ${baseClass} ${className ?? ""}`}>
       {renderAsDiagram ? (
         <Mermaid chart={content} className="w-full" onError={() => setRenderAsDiagram(false)} />
       ) : (
