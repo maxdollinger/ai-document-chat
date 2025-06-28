@@ -100,8 +100,8 @@ export default function ChatPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-8 sm:p-24 bg-background text-foreground">
-      <div className="w-full max-w-5xl">
+    <main className="flex min-h-screen flex-col p-8 sm:p-24 bg-background text-foreground">
+      <div className="w-full max-w-5xl flex flex-col flex-1 mx-auto">
         <header className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
             AI Document Chat
@@ -111,11 +111,11 @@ export default function ChatPage() {
           </p>
         </header>
 
-        <Card className="w-full">
+        <Card className="w-full flex flex-col flex-1">
           <CardHeader>
             <CardTitle>Chat</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-col flex-1">
             <div className="p-4 border rounded-lg mb-4">
               <p>
                 <strong>Assistant ID:</strong> {assistantId}
@@ -126,7 +126,7 @@ export default function ChatPage() {
             </div>
 
             {/* Messages */}
-            <div className="space-y-4 mb-4 h-96 overflow-y-auto p-4 border rounded-lg">
+            <div className="space-y-4 mb-4 flex-1 overflow-y-auto p-4 border rounded-lg">
               {messages.map((msg, i) => (
                 <div
                   key={i}
@@ -138,7 +138,7 @@ export default function ChatPage() {
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSubmit} className="flex gap-2 items-center">
+            <form onSubmit={handleSubmit} className="flex gap-2 items-center pt-4 sticky bottom-0 bg-background">
               <label className="flex items-center gap-1 text-sm mr-2">
                 <input
                   type="checkbox"
