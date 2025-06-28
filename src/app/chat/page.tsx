@@ -24,10 +24,6 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [diagramMode, setDiagramMode] = useState(false);
 
-  // Refs for automatically scrolling to the newest message
-  const bottomRef = useRef<HTMLDivElement | null>(null);
-  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
-
   // Load existing messages if a thread ID is provided via query params
   useEffect(() => {
     const loadMessages = async () => {
@@ -112,9 +108,9 @@ export default function ChatPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col p-8 sm:p-24 bg-background text-foreground">
+    <main className="flex min-h-screen flex-col p-8 bg-background text-foreground">
       <div className="w-full max-w-7xl flex flex-col flex-1 mx-auto">
-        <header className="text-center mb-12">
+        <header className="text-center mb-2">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
             AI Document Chat
           </h1>
@@ -123,23 +119,8 @@ export default function ChatPage() {
           </p>
         </header>
 
-        <Card className="w-full flex flex-col flex-1">
-          <CardHeader>
-            <CardTitle>Chat</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col flex-1">
-            <div className="p-4 border rounded-lg mb-4">
-              <p>
-                <strong>Assistant ID:</strong> {assistantId}
-              </p>
-              <p>
-                <strong>Thread ID:</strong> {threadId ?? "(new thread will be created)"}
-              </p>
-            </div>
-
             {/* Messages */}
             <div
-              ref={messagesContainerRef}
               className="space-y-4 mb-4 flex-1 overflow-y-auto p-4 border rounded-lg"
             >
               {messages.map((msg, i) => (
@@ -150,8 +131,6 @@ export default function ChatPage() {
                   <ChatMessage content={msg.content} role={msg.role} />
                 </div>
               ))}
-              {/* Sentinel */}
-              <div ref={bottomRef} />
             </div>
 
             {/* Input */}
@@ -177,8 +156,6 @@ export default function ChatPage() {
                 {isLoading ? "Sending..." : "Send"}
               </Button>
             </form>
-          </CardContent>
-        </Card>
       </div>
     </main>
   );
