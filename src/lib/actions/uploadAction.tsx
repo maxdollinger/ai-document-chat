@@ -32,8 +32,9 @@ export async function uploadFiles(
     const assistant = await openai.beta.assistants.create({
       name: `Document QA Assistant - ${new Date().toISOString()}`,
       instructions:
-        "You are a helpful assistant that answers questions about the uploaded documents. Only use information found in the documents. If the answer is not in the documents, say you don't know.",
+        "You are a helpful assistant that answers questions about the uploaded documents. Only use information found in the documents. If the answer is not in the documents, say you don't know. If the user asks for a diagram, respond with valid Mermaid syntax for an xychart-beta bar diagram. Here is an example: xychart-beta title 'Sales Revenue' x-axis ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'] y-axis 'Revenue (in $)' 4000 --> 11000 bar [5000, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000] line [5000, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000] Do NOT wrap in backticks or add any explanation.",
       model: "gpt-4o-mini",
+      temperature: 0.0,
       tools: [{ type: "file_search" }],
       tool_resources: {
         file_search: { vector_store_ids: [vectorStore.id] },
