@@ -11,7 +11,7 @@ export async function uploadFiles(
 ): Promise<{
   status: "success" | "error";
   message: string;
-  vectorStoreId?: string;
+  assistantId?: string;
 }> {
   try {
     const files = formData.getAll("files") as File[];
@@ -19,27 +19,31 @@ export async function uploadFiles(
       return { status: "error", message: "No files were uploaded." };
     }
 
+    // 1. Create a vector store and upload files
     const vectorStore = await openai.vectorStores.create({
       name: `File Search Vector Store - ${new Date().toISOString()}`,
     });
 
-    await openai.vectorStores.fileBatches.uploadAndPoll(vectorStore.id, { files });
+    await openai.vectorStores.fileBatches.uploadAndPoll(vectorStore.id, {
+      files,
+    });
 
-    const response = await openai.responses.create({
+    // 2. Create an assistant linked to the vector store
+    const assistant = await openai.beta.assistants.create({
+      name: `Document QA Assistant - ${new Date().toISOString()}`,
+      instructions:
+        "You are a helpful assistant that answers questions about the uploaded documents. Only use information found in the documents. If the answer is not in the documents, say you don't know.",
       model: "gpt-4o-mini",
-      input: "Welchen netto umsatz gab es 2020/21?",
-      tools: [{
-          type: "file_search",
-          vector_store_ids: [vectorStore.id],
-      }],
-  });;
-
-    console.log(response.output);
+      tools: [{ type: "file_search" }],
+      tool_resources: {
+        file_search: { vector_store_ids: [vectorStore.id] },
+      },
+    });
 
     return {
       status: "success",
-      vectorStoreId: vectorStore.id,
-      message: "vector store created",
+      assistantId: assistant.id,
+      message: "Assistant created and ready to chat.",
     };
   } catch (error) {
     console.error("Upload error:", error);
@@ -49,12 +53,15 @@ export async function uploadFiles(
   }
 }
 
+// Optional cleanup of resources (not used directly here)
 async function cleanupResources(vectorStoreId: string) {
   try {
     console.log("Cleaning up resources...");
     const files = await openai.vectorStores.files.list(vectorStoreId);
     for (const file of files.data) {
-      await openai.vectorStores.files.delete(file.id, {vector_store_id: vectorStoreId});
+      await openai.vectorStores.files.delete(file.id, {
+        vector_store_id: vectorStoreId,
+      });
     }
 
     await openai.vectorStores.delete(vectorStoreId);
@@ -62,6 +69,5 @@ async function cleanupResources(vectorStoreId: string) {
     console.log("Cleanup complete.");
   } catch (cleanupError) {
     console.error("Error during cleanup:", cleanupError);
-    // Don't re-throw, as the primary operation might have succeeded.
   }
 } 

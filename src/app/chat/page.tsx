@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,16 +12,21 @@ interface Message {
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
-  const assistantId = searchParams.get("vectorStoreId");
+  const router = useRouter();
+
+  const assistantId = searchParams.get("assistantId");
+  const initialThreadId = searchParams.get("threadId");
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [lastResponseId, setLastResponseId] = useState<string | null>(null);
+  const [threadId, setThreadId] = useState<string | null>(initialThreadId);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || !assistantId) return;
 
+    // Add user message locally
     const userMessage: Message = { role: "user", content: input };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
@@ -33,28 +38,35 @@ export default function ChatPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: input,
-          vectorStoreId: assistantId,
-          previousResponseId: lastResponseId,
+          assistantId,
+          threadId,
         }),
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to get response from server");
+      if (!res.ok) throw new Error("Failed to get response from server");
+
+      const { response, threadId: returnedThreadId } = await res.json();
+
+      // Update threadId state and URL if new thread created
+      if (!threadId && returnedThreadId) {
+        setThreadId(returnedThreadId);
+        const params = new URLSearchParams(Array.from(searchParams.entries()));
+        params.set("threadId", returnedThreadId);
+        router.replace(`?${params.toString()}`);
       }
 
-      console.log(res);
-
-      const { response, responseId } = await res.json();
-      const assistantMessage: Message = { role: "assistant", content: response };
-      setMessages((prev) => [...prev, assistantMessage]);
-      setLastResponseId(responseId);
-    } catch (error) {
-      console.error(error);
-      const errorMessage: Message = {
+      // Add assistant message
+      const assistantMessage: Message = {
         role: "assistant",
-        content: "Sorry, something went wrong. Please try again.",
+        content: response,
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
+    } catch (err) {
+      console.error(err);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Sorry, an error occurred." },
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -79,22 +91,23 @@ export default function ChatPage() {
           <CardContent>
             <div className="p-4 border rounded-lg mb-4">
               <p>
-                <strong>Vectorstore ID:</strong> {assistantId}
+                <strong>Assistant ID:</strong> {assistantId}
+              </p>
+              <p>
+                <strong>Thread ID:</strong> {threadId ?? "(new thread will be created)"}
               </p>
             </div>
+
+            {/* Messages */}
             <div className="space-y-4 mb-4 h-96 overflow-y-auto p-4 border rounded-lg">
               {messages.map((msg, i) => (
                 <div
                   key={i}
-                  className={`flex ${
-                    msg.role === "user" ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
                     className={`p-3 rounded-lg ${
-                      msg.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
+                      msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                     }`}
                   >
                     {msg.content}
@@ -102,6 +115,8 @@ export default function ChatPage() {
                 </div>
               ))}
             </div>
+
+            {/* Input */}
             <form onSubmit={handleSubmit} className="flex gap-2">
               <input
                 type="text"
@@ -111,7 +126,7 @@ export default function ChatPage() {
                 className="flex-grow p-2 border rounded-lg"
                 disabled={isLoading}
               />
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading || !assistantId}>
                 {isLoading ? "Sending..." : "Send"}
               </Button>
             </form>
