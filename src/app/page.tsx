@@ -15,7 +15,7 @@ import {
   useRef,
   useTransition,
 } from "react";
-import { uploadFiles } from "./actions";
+import { uploadFiles } from "@/lib/actions/uploadAction";
 
 export default function Home() {
   const [files, setFiles] = useState<FileList | null>(null);
