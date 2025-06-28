@@ -32,14 +32,7 @@ export default function ChatMessage({ content, role, className }: ChatMessagePro
   const [renderAsDiagram, setRenderAsDiagram] = useState(false);
 
   useEffect(() => {
-    if (!looksLikeMermaid(content)) {
-      setRenderAsDiagram(false);
-      return;
-    }
-
-    let cancelled = false;
     import("mermaid").then(async (m) => {
-      if (cancelled) return;
       const mermaid = m.default ?? m;
         const valid = await mermaid.parse(content, {suppressErrors: true});
         if (valid === true) {
@@ -48,10 +41,6 @@ export default function ChatMessage({ content, role, className }: ChatMessagePro
           setRenderAsDiagram(false);
         }
     });
-
-    return () => {
-      cancelled = true;
-    };
   }, [content]);
 
   const baseClass =

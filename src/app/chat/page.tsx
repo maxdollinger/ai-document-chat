@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { FormEvent, useState, useEffect } from "react";
+import { FormEvent, useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ChatMessage from "@/components/ChatMessage";
@@ -23,6 +23,10 @@ export default function ChatPage() {
   const [threadId, setThreadId] = useState<string | null>(initialThreadId);
   const [isLoading, setIsLoading] = useState(false);
   const [diagramMode, setDiagramMode] = useState(false);
+
+  // Refs for automatically scrolling to the newest message
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Load existing messages if a thread ID is provided via query params
   useEffect(() => {
@@ -47,6 +51,14 @@ export default function ChatPage() {
     // We intentionally want this to run only once when the component mounts
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Scroll to the very bottom whenever messages change
+  useEffect(() => {
+    // mermaid renders async to the DOM, so we need to wait for it to be rendered 
+    setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }, 500);
+  }, [messages]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -101,7 +113,7 @@ export default function ChatPage() {
 
   return (
     <main className="flex min-h-screen flex-col p-8 sm:p-24 bg-background text-foreground">
-      <div className="w-full max-w-5xl flex flex-col flex-1 mx-auto">
+      <div className="w-full max-w-7xl flex flex-col flex-1 mx-auto">
         <header className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
             AI Document Chat
@@ -126,7 +138,10 @@ export default function ChatPage() {
             </div>
 
             {/* Messages */}
-            <div className="space-y-4 mb-4 flex-1 overflow-y-auto p-4 border rounded-lg">
+            <div
+              ref={messagesContainerRef}
+              className="space-y-4 mb-4 flex-1 overflow-y-auto p-4 border rounded-lg"
+            >
               {messages.map((msg, i) => (
                 <div
                   key={i}
@@ -135,6 +150,8 @@ export default function ChatPage() {
                   <ChatMessage content={msg.content} role={msg.role} />
                 </div>
               ))}
+              {/* Sentinel */}
+              <div ref={bottomRef} />
             </div>
 
             {/* Input */}
