@@ -1,5 +1,13 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useState, type ChangeEvent, type FormEvent, type DragEvent } from "react";
 
 export default function Home() {
@@ -92,36 +100,39 @@ export default function Home() {
           </p>
         </header>
 
-        <section className="bg-card p-6 sm:p-8 rounded-lg shadow-md border w-full text-card-foreground">
-          <h2 className="text-2xl font-semibold mb-4">
-            Was diese App kann
-          </h2>
-          <p className="mb-6 text-muted-foreground">
-            Text, Tabellen, Grafiken und Gliederungen werden so umgewandelt, dass
-            das Sprachmodell diese gut verwenden kann.
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="text-xl font-semibold mb-2">Chat</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                <li>KI antwortet kontextbezogen mit Quellenangabe.</li>
-                <li>
-                  Erkennt automatisch, wenn ein Vergleich oder eine Analyse
-                  gewünscht ist, die grafisch dargestellt werden sollte.
-                </li>
-              </ul>
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle>Was diese App kann</CardTitle>
+            <CardDescription>
+              Text, Tabellen, Grafiken und Gliederungen werden so umgewandelt,
+              dass das Sprachmodell diese gut verwenden kann.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Chat</h3>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                  <li>KI antwortet kontextbezogen mit Quellenangabe.</li>
+                  <li>
+                    Erkennt automatisch, wenn ein Vergleich oder eine Analyse
+                    gewünscht ist, die grafisch dargestellt werden sollte.
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Diagramme</h3>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                  <li>
+                    Erstellt bei Bedarf das passende Chart (Balken, Linie).
+                  </li>
+                  <li>Wählt selbst den sinnvollsten Typ.</li>
+                  <li>Diagramme sind in Folgefragen referenzierbar.</li>
+                </ul>
+              </div>
             </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-2">Diagramme</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                <li>Erstellt bei Bedarf das passende Chart (Balken, Linie).</li>
-                <li>Wählt selbst den sinnvollsten Typ.</li>
-                <li>Diagramme sind in Folgefragen referenzierbar.</li>
-              </ul>
-            </div>
-          </div>
-        </section>
+          </CardContent>
+        </Card>
 
         <section className="mt-12 w-full">
           <form
@@ -162,25 +173,28 @@ export default function Home() {
             </div>
 
             {files && files.length > 0 && (
-              <div className="space-y-2 text-sm">
-                <h3 className="font-medium">Ausgewählte Dateien:</h3>
-                <ul className="list-disc list-inside bg-muted/50 p-4 rounded-md border text-muted-foreground space-y-1">
-                  {Array.from(files).map((file, index) => (
-                    <li key={index}>
-                      {file.name} ({(file.size / 1024).toFixed(2)} KB)
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Ausgewählte Dateien</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                    {Array.from(files).map((file, index) => (
+                      <li key={index}>
+                        {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
             )}
 
-            <button
+            <Button
               type="submit"
               disabled={isUploading || !files || files.length === 0}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors"
             >
               {isUploading ? "Uploading..." : "Dateien hochladen"}
-            </button>
+            </Button>
           </form>
           {message && <p className="mt-4 text-center text-sm">{message}</p>}
         </section>
