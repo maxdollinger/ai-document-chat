@@ -1,10 +1,9 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { FormEvent, useState, useEffect, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { FormEvent, useState, useEffect } from "react";
 import ChatMessage from "@/components/ChatMessage";
+import { Button } from "@/components/ui/button";
 
 interface Message {
   role: "user" | "assistant";
@@ -22,7 +21,6 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [threadId, setThreadId] = useState<string | null>(initialThreadId);
   const [isLoading, setIsLoading] = useState(false);
-  const [diagramMode, setDiagramMode] = useState(false);
 
   // Load existing messages if a thread ID is provided via query params
   useEffect(() => {
@@ -74,7 +72,6 @@ export default function ChatPage() {
           message: input,
           assistantId,
           threadId,
-          diagramMode,
         }),
       });
 
@@ -135,15 +132,6 @@ export default function ChatPage() {
 
             {/* Input */}
             <form onSubmit={handleSubmit} className="flex gap-2 items-center py-4 sticky bottom-0 bg-background">
-              <label className="flex items-center gap-1 text-sm mr-2">
-                <input
-                  type="checkbox"
-                  checked={diagramMode}
-                  onChange={(e) => setDiagramMode(e.target.checked)}
-                  disabled={isLoading}
-                />
-                Diagram
-              </label>
               <input
                 type="text"
                 value={input}

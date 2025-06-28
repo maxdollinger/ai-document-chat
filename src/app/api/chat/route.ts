@@ -5,7 +5,7 @@ const openai = new OpenAI();
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, assistantId, threadId: existingThreadId, diagramMode } = await req.json();
+    const { message, assistantId, threadId: existingThreadId } = await req.json();
 
     if (!assistantId) {
       return NextResponse.json(
@@ -19,9 +19,7 @@ export async function POST(req: NextRequest) {
       existingThreadId ?? (await openai.beta.threads.create()).id;
 
     // Build the content, optionally requesting a diagram in Mermaid format
-    const content = diagramMode
-      ? `${message}\n\n Bitte erzeuge ein Diagram.`
-      : message;
+    const content = message;
 
     // Add the user's message to the thread
     await openai.beta.threads.messages.create(threadId, {
@@ -57,7 +55,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       response: assistantReply.content[0].text.value,
       threadId,
-      isDiagram: Boolean(diagramMode),
     });
   } catch (error) {
     console.error(error);
