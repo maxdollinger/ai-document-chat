@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { FormEvent, useState, useEffect } from "react";
 import ChatMessage from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
+import * as mermaid from "mermaid";
 
 interface Message {
   role: "user" | "assistant";
@@ -40,6 +41,8 @@ export default function ChatPage() {
         setIsLoading(false);
       }
     };
+
+    mermaid.default.initialize({ startOnLoad: false, theme: "default" });
 
     loadMessages();
     // We intentionally want this to run only once when the component mounts
