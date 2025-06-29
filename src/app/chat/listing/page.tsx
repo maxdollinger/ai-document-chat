@@ -114,12 +114,6 @@ export default async function ChatListingPage() {
             </Card>
           ))}
         </div>
-
-        <div className="mt-8 text-center">
-          <Button asChild>
-            <Link href="/">Zurück zur Startseite</Link>
-          </Button>
-        </div>
       </div>
     </main>
   );
