@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useId } from "react";
+import { useEffect, useState } from "react";
 import {default as mermaid} from "mermaid";
 
 interface ChatMessageProps {
@@ -11,6 +11,7 @@ interface ChatMessageProps {
 export default function ChatMessage({ content, role }: ChatMessageProps) {
   const [isDiagram, setIsDiagram] = useState(false);
   const [showDiagram, setShowDiagram] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
       mermaid.parse(content, { suppressErrors: true }).then((valid) => {
@@ -33,6 +34,16 @@ export default function ChatMessage({ content, role }: ChatMessageProps) {
   const baseClass =
     role === "user" ? "bg-primary text-primary-foreground" : "bg-muted";
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Copy failed", err);
+    }
+  };
+
   // Special case: loading placeholder
   if (content === "__loading__") {
     return (
@@ -50,8 +61,16 @@ export default function ChatMessage({ content, role }: ChatMessageProps) {
 
   return (
     <div
-      className={`p-3 rounded-lg w-full max-w-2xl overflow-x-auto ${baseClass}`}
+      className={`relative p-3 rounded-lg w-full max-w-2xl overflow-x-auto ${baseClass}`}
     >
+      {/* Copy button */}
+      <button
+        onClick={handleCopy}
+        className="absolute top-2 right-2 text-xs opacity-70 hover:opacity-100 transition"
+        aria-label="Copy message"
+      >
+        {copied ? "✅" : "📋"}
+      </button>
       {isDiagram && (
         <>
           <label htmlFor="diagram-toggle" className="flex items-center gap-2 mb-2 text-sm">
@@ -67,11 +86,11 @@ export default function ChatMessage({ content, role }: ChatMessageProps) {
           </label>
         </>
       )}
-      {isDiagram && showDiagram ? 
-      <pre className='mermaid'>{content}</pre>
-      :
-      content
-      }
+      {isDiagram && showDiagram ? (
+        <pre className="mermaid">{content}</pre>
+      ) : (
+        content
+      )}
     </div>
   );
 } 
