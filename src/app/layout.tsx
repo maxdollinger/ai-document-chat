@@ -37,7 +37,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {/* Site navigation */}
-        <nav className="w-full border-b bg-background">
+        <nav className="w-full border-b bg-background sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-background/90">
           <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
             <Link href="/" className="font-semibold text-lg">
               AI&nbsp;Document&nbsp;Chat
