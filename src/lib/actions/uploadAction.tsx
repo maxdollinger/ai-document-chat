@@ -1,6 +1,8 @@
 "use server";
 
 import { OpenAI } from "openai";
+import { db } from "@/lib/db";
+import { assistants } from "@/lib/db/schema";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,9 +14,17 @@ export async function uploadFiles(
   status: "success" | "error";
   message: string;
   assistantId?: string;
+  threadId?: string;
 }> {
+  // Track created resource IDs so we can clean them up if anything fails
+  let vectorStoreId: string | null = null;
+  let assistantId: string | null = null;
+  let threadId: string | null = null;
+
   try {
     const files = formData.getAll("files") as File[];
+    const assistantNameRaw = (formData.get("assistantName") as string | null) ?? "";
+    const assistantName = assistantNameRaw.trim() || `Document QA Assistant - ${new Date().toISOString()}`;
     if (files.length === 0) {
       return { status: "error", message: "No files were uploaded." };
     }
@@ -23,6 +33,7 @@ export async function uploadFiles(
     const vectorStore = await openai.vectorStores.create({
       name: `File Search Vector Store - ${new Date().toISOString()}`,
     });
+    vectorStoreId = vectorStore.id;
 
     await openai.vectorStores.fileBatches.uploadAndPoll(vectorStore.id, {
       files,
@@ -30,7 +41,7 @@ export async function uploadFiles(
 
     // 2. Create an assistant linked to the vector store
     const assistant = await openai.beta.assistants.create({
-      name: `Document QA Assistant - ${new Date().toISOString()}`,
+      name: assistantName,
       instructions:
         `You are a helpful assistant that answers questions about the uploaded documents.
         Only use information found in the documents. If the answer is not in the documents, say you don't know.
@@ -48,32 +59,83 @@ export async function uploadFiles(
         file_search: { vector_store_ids: [vectorStore.id] },
       },
     });
+    assistantId = assistant.id;
+
+    // 3. Create an initial thread for this assistant
+    const thread = await openai.beta.threads.create();
+    threadId = thread.id;
+
+    // 4. Persist metadata in the database
+    await db.insert(assistants).values({
+      assistantId: assistant.id,
+      vectorStoreId: vectorStore.id,
+      threadId: thread.id,
+      name: assistantName,
+    }).run();
 
     return {
       status: "success",
       assistantId: assistant.id,
+      threadId: thread.id,
       message: "Assistant created and ready to chat.",
     };
   } catch (error) {
     console.error("Upload error:", error);
+
+    // Attempt to clean up any resources that were created before the failure
+    await cleanupResources({ vectorStoreId, assistantId, threadId });
+
     const errorMessage =
       error instanceof Error ? error.message : "An unknown error occurred.";
     return { status: "error", message: `Upload failed: ${errorMessage}` };
   }
 }
 
-// Optional cleanup of resources (not used directly here)
-async function cleanupResources(vectorStoreId: string) {
+// Update cleanupResources to accept multiple optional resource IDs
+async function cleanupResources({
+  vectorStoreId,
+  assistantId,
+  threadId,
+}: {
+  vectorStoreId: string | null;
+  assistantId: string | null;
+  threadId: string | null;
+}) {
   try {
     console.log("Cleaning up resources...");
-    const files = await openai.vectorStores.files.list(vectorStoreId);
-    for (const file of files.data) {
-      await openai.vectorStores.files.delete(file.id, {
-        vector_store_id: vectorStoreId,
-      });
+
+    // Delete thread if created
+    if (threadId) {
+      try {
+        await openai.beta.threads.delete(threadId);
+      } catch (threadErr) {
+        console.warn("Failed to delete thread:", threadErr);
+      }
     }
 
-    await openai.vectorStores.delete(vectorStoreId);
+    // Delete assistant if created
+    if (assistantId) {
+      try {
+        await openai.beta.assistants.delete(assistantId);
+      } catch (assistantErr) {
+        console.warn("Failed to delete assistant:", assistantErr);
+      }
+    }
+
+    // Delete vector store and its files if created
+    if (vectorStoreId) {
+      try {
+        const files = await openai.vectorStores.files.list(vectorStoreId);
+        for (const file of files.data) {
+          await openai.vectorStores.files.delete(file.id, {
+            vector_store_id: vectorStoreId,
+          });
+        }
+        await openai.vectorStores.delete(vectorStoreId);
+      } catch (vectorErr) {
+        console.warn("Failed to delete vector store:", vectorErr);
+      }
+    }
 
     console.log("Cleanup complete.");
   } catch (cleanupError) {

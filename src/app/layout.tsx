@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+// Ensure database and migrations are initialised on first server start
+import "@/lib/db";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

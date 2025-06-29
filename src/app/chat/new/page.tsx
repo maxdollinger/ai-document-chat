@@ -18,6 +18,7 @@ import { uploadFiles } from "@/lib/actions/uploadAction";
 import { useRouter } from "next/navigation";
 
 export default function NewChatPage() {
+  const [assistantName, setAssistantName] = useState("");
   const [files, setFiles] = useState<FileList | null>(null);
   const [message, setMessage] = useState("");
   const [isDragging, setIsDragging] = useState(false);
@@ -62,6 +63,11 @@ export default function NewChatPage() {
   };
 
   const handleSubmit = (formData: FormData) => {
+    if (!assistantName.trim()) {
+      setMessage("Bitte geben Sie einen Namen für den Dokumenten-Chat an.");
+      return;
+    }
+
     if (!files || files.length === 0) {
       setMessage("Please select files to upload.");
       return;
@@ -104,6 +110,23 @@ export default function NewChatPage() {
           onDrop={handleDrop}
           className="flex flex-col gap-6"
         >
+          {/* Assistant Name */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium" htmlFor="assistant-name">
+              Dokumenten-Chat-Name
+            </label>
+            <input
+              id="assistant-name"
+              name="assistantName"
+              type="text"
+              value={assistantName}
+              onChange={(e) => setAssistantName(e.target.value)}
+              className="p-2 border rounded-lg"
+              placeholder="z.B. Projektbericht Q2"
+              required
+            />
+          </div>
+
           <div
             className={`relative flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg transition-colors ${
               isDragging
@@ -146,10 +169,11 @@ export default function NewChatPage() {
             </Card>
           )}
 
-          <Button type="submit" disabled={isPending || !files || files.length === 0}>
+          <Button type="submit" disabled={isPending || !files || files.length === 0 || !assistantName.trim()}>
             {isPending ? "Erstelle Assistent..." : "Dateien hochladen"}
           </Button>
         </form>
+
         {message && <p className="mt-4 text-center text-sm">{message}</p>}
       </div>
     </main>
