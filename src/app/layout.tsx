@@ -6,6 +6,7 @@ import "./globals.css";
 import "@/lib/db";
 
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,13 +42,14 @@ export default function RootLayout({
             <Link href="/" className="font-semibold text-lg">
               AI&nbsp;Document&nbsp;Chat
             </Link>
-            <div className="flex gap-6 text-sm">
+            <div className="flex items-center gap-4 text-sm">
               <Link href="/chat/new" className="hover:text-primary">
                 Neuer Chat
               </Link>
               <Link href="/chat/listing" className="hover:text-primary">
                 Vorhandene Chats
               </Link>
+              <ThemeToggle />
             </div>
           </div>
         </nav>
