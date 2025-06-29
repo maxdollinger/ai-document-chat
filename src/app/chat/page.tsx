@@ -122,7 +122,7 @@ export default function ChatPage() {
 
   return (
     <main className="flex min-h-screen flex-col p-8 bg-background text-foreground">
-      <div className="w-full max-w-7xl flex flex-col flex-1 mx-auto">
+      <div className="w-full max-w-5xl flex flex-col flex-1 mx-auto">
         <header className="text-center mb-4">
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
             {assistantName}
@@ -144,13 +144,13 @@ export default function ChatPage() {
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSubmit} className="flex gap-2 items-center py-4 sticky bottom-0 bg-background">
+            <form onSubmit={handleSubmit} className="flex gap-2 items-center py-4 sticky bottom-0">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask a question..."
-                className="flex-grow p-2 border rounded-lg"
+                className="flex-grow p-2 border rounded-lg bg-background"
                 disabled={isLoading}
               />
               <Button type="submit" disabled={isLoading || !assistantId}>
