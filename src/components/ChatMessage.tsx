@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import {default as mermaid} from "mermaid";
 import { ClipboardIcon, CheckIcon } from "@heroicons/react/24/outline";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ChatMessageProps {
   content: string;
@@ -93,6 +95,50 @@ export default function ChatMessage({ content, role }: ChatMessageProps) {
       )}
       {isDiagram && showDiagram ? (
         <pre className="mermaid">{content}</pre>
+      ) : isDiagram && !showDiagram ? (
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]}
+          components={{
+            // Custom styling for markdown elements
+            h1: ({ children }) => <h1 className="text-xl font-bold mb-2 mt-4 first:mt-0">{children}</h1>,
+            h2: ({ children }) => <h2 className="text-lg font-semibold mb-2 mt-3 first:mt-0">{children}</h2>,
+            h3: ({ children }) => <h3 className="text-base font-semibold mb-1 mt-2 first:mt-0">{children}</h3>,
+            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+            ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+            ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+            li: ({ children }) => <li className="ml-2">{children}</li>,
+            blockquote: ({ children }) => <blockquote className="border-l-4 border-gray-300 pl-4 italic my-2 dark:border-gray-600">{children}</blockquote>,
+            code: ({ children }) => <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
+            pre: ({ children }) => <pre className="bg-gray-100 dark:bg-gray-800 p-3 rounded overflow-x-auto text-sm font-mono my-2">{children}</pre>,
+            table: ({ children }) => <table className="border-collapse border border-gray-300 dark:border-gray-600 my-2">{children}</table>,
+            th: ({ children }) => <th className="border border-gray-300 dark:border-gray-600 px-2 py-1 bg-gray-100 dark:bg-gray-800 font-semibold">{children}</th>,
+            td: ({ children }) => <td className="border border-gray-300 dark:border-gray-600 px-2 py-1">{children}</td>,
+          }}
+        >
+          {content}
+        </ReactMarkdown>
+      ) : role === "assistant" ? (
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]}
+          components={{
+            // Custom styling for markdown elements
+            h1: ({ children }) => <h1 className="text-xl font-bold mb-2 mt-4 first:mt-0">{children}</h1>,
+            h2: ({ children }) => <h2 className="text-lg font-semibold mb-2 mt-3 first:mt-0">{children}</h2>,
+            h3: ({ children }) => <h3 className="text-base font-semibold mb-1 mt-2 first:mt-0">{children}</h3>,
+            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+            ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+            ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+            li: ({ children }) => <li className="ml-2">{children}</li>,
+            blockquote: ({ children }) => <blockquote className="border-l-4 border-gray-300 pl-4 italic my-2 dark:border-gray-600">{children}</blockquote>,
+            code: ({ children }) => <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
+            pre: ({ children }) => <pre className="bg-gray-100 dark:bg-gray-800 p-3 rounded overflow-x-auto text-sm font-mono my-2">{children}</pre>,
+            table: ({ children }) => <table className="border-collapse border border-gray-300 dark:border-gray-600 my-2">{children}</table>,
+            th: ({ children }) => <th className="border border-gray-300 dark:border-gray-600 px-2 py-1 bg-gray-100 dark:bg-gray-800 font-semibold">{children}</th>,
+            td: ({ children }) => <td className="border border-gray-300 dark:border-gray-600 px-2 py-1">{children}</td>,
+          }}
+        >
+          {content}
+        </ReactMarkdown>
       ) : (
         content
       )}

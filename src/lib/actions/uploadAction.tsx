@@ -45,15 +45,28 @@ export async function uploadFiles(
       instructions:
         `You are a helpful assistant that answers questions about the uploaded documents.
         Only use information found in the documents. If the answer is not in the documents, say you don't know.
+        
+        For regular responses, format your answers using Markdown syntax with:
+        - **Bold text** for emphasis
+        - *Italic text* for subtle emphasis
+        - ## Headers for sections
+        - ### Subheaders for subsections
+        - - Bullet points for lists
+        - 1. Numbered lists when order matters
+        - \`code\` for inline code or technical terms
+        - \`\`\`language blocks for code snippets
+        - > Blockquotes for important notes
+        - Tables when presenting structured data
+        
         If the user asks for a diagram, respond with valid Mermaid syntax for an xychart-beta bar or line diagram.
         Here is an example:
           xychart-beta title "Sales Revenue" x-axis ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
           y-axis "Revenue (in $)" 4000 --> 11000
           bar [5000, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
           line [5000, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
-        Do NOT wrap in backticks or add any explanation.`,
+        Do NOT wrap diagram responses in backticks or add any explanation.`,
       model: "gpt-4o-mini",
-      temperature: 0.0,
+      temperature: 0,
       tools: [{ type: "file_search" }],
       tool_resources: {
         file_search: { vector_store_ids: [vectorStore.id] },
