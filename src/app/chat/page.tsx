@@ -23,14 +23,14 @@ export default function ChatPage() {
   const [threadId, setThreadId] = useState<string | null>(initialThreadId);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load existing messages if a thread ID is provided via query params
+  // Load existing messages whenever threadId changes (including first mount)
   useEffect(() => {
-    const loadMessages = async () => {
-      if (!initialThreadId) return;
+    if (!threadId) return;
 
+    const loadMessages = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`/api/chat?threadId=${initialThreadId}`);
+        const res = await fetch(`/api/chat?threadId=${threadId}`);
         if (!res.ok) throw new Error("Failed to fetch thread messages");
 
         const { messages: existingMessages } = await res.json();
@@ -42,12 +42,12 @@ export default function ChatPage() {
       }
     };
 
+    // initialize mermaid only once
     mermaid.default.initialize({ startOnLoad: false, theme: "default" });
 
     loadMessages();
-    // We intentionally want this to run only once when the component mounts
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [threadId]);
 
   // Scroll to the very bottom whenever messages change
   useEffect(() => {
