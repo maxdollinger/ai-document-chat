@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Document Chat
 
-## Getting Started
+An intelligent document chat application that allows you to upload documents and have conversations about their content using OpenAI's Assistant API.
 
-First, run the development server:
+## Features
+
+- 📄 **Document Upload**: Upload multiple documents (PDF, TXT, etc.)
+- 💬 **AI Chat**: Ask questions about your documents using OpenAI's GPT-4
+- 📊 **Diagram Generation**: Request Mermaid diagrams based on document data
+- 🎨 **Markdown Support**: Rich text formatting in chat responses
+- 🗂️ **Multiple Assistants**: Create and manage multiple document collections
+- 🗑️ **Resource Management**: Delete assistants and clean up OpenAI resources
+- 🌓 **Dark/Light Mode**: Toggle between themes
+
+## Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+- OpenAI API key
+
+## Setup Instructions
+
+### 1. Clone the Repository
+
+```bash
+git clone git@github.com:maxdollinger/ai-document-chat.git
+cd ai-document-chat
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Environment Configuration
+
+Create a `.env.local` file in the root directory:
+
+```bash
+# OpenAI API Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Database Configuration (SQLite)
+DATABASE_URL=sqlite:./sqlite.db
+```
+
+**Required Environment Variables:**
+- `OPENAI_API_KEY`: Your OpenAI API key from [platform.openai.com](https://platform.openai.com/api-keys)
+- `DATABASE_URL`: SQLite database path (default: `sqlite:./sqlite.db`)
+
+### 4. Database Setup
+
+The database will be automatically created and migrated when you first run the development server.
+
+### 5. Start Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Creating a Document Assistant
 
-## Learn More
+1. Go to the home page
+2. Upload your documents (PDF, TXT, etc.)
+3. Give your assistant a name
+4. Click "Create Assistant"
 
-To learn more about Next.js, take a look at the following resources:
+### Chatting with Documents
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Select an existing assistant from the chat listing
+2. Ask questions about the uploaded documents
+3. Request diagrams by asking for visual representations of data
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Managing Assistants
 
-## Deploy on Vercel
+- **View all assistants**: Visit `/chat/listing`
+- **Add more files**: Use the "Add Files" button on existing assistants
+- **Delete assistants**: Click the trash icon to remove assistants and clean up OpenAI resources
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Available Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run migrate` - Run database migrations
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Database**: SQLite with Drizzle ORM
+- **AI**: OpenAI Assistant API with File Search
+- **UI**: Tailwind CSS + shadcn/ui components
+- **Markdown**: react-markdown with GitHub Flavored Markdown
+- **Diagrams**: Mermaid.js integration
+
+## Project Structure
+
+```
+src/
+├── app/                 # Next.js app router pages
+├── components/          # Reusable UI components
+├── lib/
+│   ├── actions/         # Server actions
+│   ├── db/             # Database schema and configuration
+│   └── utils.ts        # Utility functions
+└── ...
+```
+
+## License
+
+This project is licensed under the GLWTS (Good Luck With That Shit, No LLMs) Public License. See [LICENCE.md](LICENCE.md) for details.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## Support
+
+If you encounter any issues, please check:
+1. Your OpenAI API key is valid and has sufficient credits
+2. All environment variables are set correctly
+3. The database file has proper permissions
+
+---
+
+**Happy chatting with your documents!** 🚀
