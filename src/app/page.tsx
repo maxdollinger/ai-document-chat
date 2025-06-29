@@ -12,9 +12,9 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center p-8 sm:p-24 bg-background text-foreground">
+    <main className="flex min-h-screen flex-col items-center p-8 bg-background text-foreground">
       <div className="w-full max-w-5xl">
-        <header className="text-center mb-12">
+        <header className="text-center">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
             AI Document Chat
           </h1>
@@ -22,6 +22,15 @@ export default function Home() {
             Willkommen! Wählen Sie eine Option aus, um zu starten.
           </p>
         </header>
+
+        <section className="p-12 flex flex-col sm:flex-row gap-4 justify-center">
+          <Button asChild>
+            <Link href="/chat/new">Neuer Chat</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/chat/listing">Vorhandene Chats</Link>
+          </Button>
+        </section>
 
         <Card className="w-full">
           <CardHeader>
@@ -56,15 +65,6 @@ export default function Home() {
             </div>
           </CardContent>
         </Card>
-
-        <section className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild>
-            <Link href="/chat/new">New Chat</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/chat/listing">Vorhandene Chats</Link>
-          </Button>
-        </section>
       </div>
     </main>
   );
