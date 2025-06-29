@@ -66,7 +66,7 @@ export async function uploadFiles(
           line [5000, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
         Do NOT wrap diagram responses in backticks or add any explanation.`,
       model: "gpt-4o-mini",
-      temperature: 0,
+      temperature: 0.1,
       tools: [{ type: "file_search" }],
       tool_resources: {
         file_search: { vector_store_ids: [vectorStore.id] },
