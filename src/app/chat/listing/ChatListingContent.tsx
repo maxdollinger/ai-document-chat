@@ -88,7 +88,7 @@ export default function ChatListingContent() {
           Keine vorhandenen Chats
         </h1>
         <Button asChild>
-          <Link href="/">Zurück zur Startseite</Link>
+          <Link href="/chat/new">Neuer Chat</Link>
         </Button>
       </main>
     );
