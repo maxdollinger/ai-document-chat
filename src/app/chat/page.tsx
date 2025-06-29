@@ -17,6 +17,7 @@ export default function ChatPage() {
 
   const assistantId = searchParams.get("assistantId");
   const initialThreadId = searchParams.get("threadId");
+  const assistantName = searchParams.get("name") ?? "Dokumenten-Chat";
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -122,13 +123,10 @@ export default function ChatPage() {
   return (
     <main className="flex min-h-screen flex-col p-8 bg-background text-foreground">
       <div className="w-full max-w-7xl flex flex-col flex-1 mx-auto">
-        <header className="text-center mb-2">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
-            AI Document Chat
+        <header className="text-center mb-4">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+            {assistantName}
           </h1>
-          <p className="mt-3 text-lg sm:text-xl text-muted-foreground">
-            Stellen Sie Ihre Fragen an die hochgeladenen Dokumente.
-          </p>
         </header>
 
             {/* Messages */}

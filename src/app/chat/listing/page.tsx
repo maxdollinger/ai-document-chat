@@ -106,7 +106,7 @@ export default async function ChatListingPage() {
 
               <div className="p-4 pt-0 mt-auto">
                 <Button asChild className="w-full">
-                  <Link href={`/chat?assistantId=${assistant.assistantId}&threadId=${assistant.threadId}`}>
+                  <Link href={`/chat?assistantId=${assistant.assistantId}&threadId=${assistant.threadId}&name=${encodeURIComponent(assistant.name)}`}>
                     Öffnen
                   </Link>
                 </Button>
