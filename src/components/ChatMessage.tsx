@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {default as mermaid} from "mermaid";
+import { ClipboardIcon, CheckIcon } from "@heroicons/react/24/outline";
 
 interface ChatMessageProps {
   content: string;
@@ -66,10 +67,14 @@ export default function ChatMessage({ content, role }: ChatMessageProps) {
       {/* Copy button */}
       <button
         onClick={handleCopy}
-        className="absolute top-2 right-2 text-xs opacity-70 hover:opacity-100 transition"
+        className="absolute top-2 right-2 p-1 opacity-70 hover:opacity-100 transition rounded hover:bg-black/10"
         aria-label="Copy message"
       >
-        {copied ? "✅" : "📋"}
+        {copied ? (
+          <CheckIcon className="h-4 w-4 text-green-600" />
+        ) : (
+          <ClipboardIcon className="h-4 w-4" />
+        )}
       </button>
       {isDiagram && (
         <>
