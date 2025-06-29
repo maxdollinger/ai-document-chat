@@ -42,12 +42,12 @@ Create a `.env.local` file in the root directory:
 OPENAI_API_KEY=your_openai_api_key_here
 
 # Database Configuration (SQLite)
-DATABASE_URL=sqlite:./sqlite.db
+DATABASE_URL=sqlite.db
 ```
 
 **Required Environment Variables:**
 - `OPENAI_API_KEY`: Your OpenAI API key from [platform.openai.com](https://platform.openai.com/api-keys)
-- `DATABASE_URL`: SQLite database path (default: `sqlite:./sqlite.db`)
+- `DATABASE_URL`: SQLite database path (default: `sqlite.db`)
 
 ### 4. Database Setup
 
