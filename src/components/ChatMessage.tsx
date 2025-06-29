@@ -33,6 +33,21 @@ export default function ChatMessage({ content, role }: ChatMessageProps) {
   const baseClass =
     role === "user" ? "bg-primary text-primary-foreground" : "bg-muted";
 
+  // Special case: loading placeholder
+  if (content === "__loading__") {
+    return (
+      <div
+        className={`p-3 rounded-lg w-full max-w-2xl overflow-x-auto bg-muted flex items-center`}
+      >
+        <span className="flex gap-1 text-3xl">
+          <span className="animate-bounce [animation-delay:-0.2s]">.</span>
+          <span className="animate-bounce [animation-delay:-0.1s]">.</span>
+          <span className="animate-bounce">.</span>
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`p-3 rounded-lg w-full max-w-2xl overflow-x-auto ${baseClass}`}

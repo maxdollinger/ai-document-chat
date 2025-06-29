@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { FormEvent, useState, useEffect } from "react";
+import { FormEvent, useState, useEffect, useRef } from "react";
 import ChatMessage from "@/components/ChatMessage";
 import { Button } from "@/components/ui/button";
 import * as mermaid from "mermaid";
@@ -22,6 +22,7 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [threadId, setThreadId] = useState<string | null>(initialThreadId);
   const [isLoading, setIsLoading] = useState(false);
+  const placeholderIndexRef = useRef<number | null>(null);
 
   // Load existing messages whenever threadId changes (including first mount)
   useEffect(() => {
@@ -63,7 +64,12 @@ export default function ChatPage() {
 
     // Add user message locally
     const userMessage: Message = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => {
+      const placeholder: Message = { role: "assistant", content: "__loading__" };
+      const newMessages: Message[] = [...prev, userMessage, placeholder];
+      placeholderIndexRef.current = newMessages.length - 1; // index of placeholder
+      return newMessages;
+    });
     setInput("");
     setIsLoading(true);
 
@@ -90,18 +96,24 @@ export default function ChatPage() {
         router.replace(`?${params.toString()}`);
       }
 
-      // Add assistant message
-      const assistantMessage: Message = {
-        role: "assistant",
-        content: response,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
+      // Replace placeholder with actual assistant message
+      setMessages((prev) => {
+        if (placeholderIndexRef.current === null) return prev;
+        const newArr = [...prev];
+        newArr[placeholderIndexRef.current] = { role: "assistant", content: response };
+        return newArr;
+      });
     } catch (err) {
       console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Sorry, an error occurred." },
-      ]);
+      setMessages((prev) => {
+        if (placeholderIndexRef.current === null) return prev;
+        const newArr = [...prev];
+        newArr[placeholderIndexRef.current] = {
+          role: "assistant",
+          content: "Sorry, ein Fehler ist aufgetreten.",
+        };
+        return newArr;
+      });
     } finally {
       setIsLoading(false);
     }
