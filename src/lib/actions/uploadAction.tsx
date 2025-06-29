@@ -91,6 +91,41 @@ export async function uploadFiles(
   }
 }
 
+export async function addFilesToVectorStore(
+  formData: FormData,
+): Promise<{
+  status: "success" | "error";
+  message: string;
+}> {
+  try {
+    const files = formData.getAll("files") as File[];
+    const vectorStoreId = formData.get("vectorStoreId") as string;
+
+    if (!vectorStoreId) {
+      return { status: "error", message: "Vector Store ID is required." };
+    }
+
+    if (files.length === 0) {
+      return { status: "error", message: "No files were selected." };
+    }
+
+    // Upload files to existing vector store
+    await openai.vectorStores.fileBatches.uploadAndPoll(vectorStoreId, {
+      files,
+    });
+
+    return {
+      status: "success",
+      message: `${files.length} file(s) successfully added to the assistant.`,
+    };
+  } catch (error) {
+    console.error("Add files error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred.";
+    return { status: "error", message: `Failed to add files: ${errorMessage}` };
+  }
+}
+
 // Update cleanupResources to accept multiple optional resource IDs
 async function cleanupResources({
   vectorStoreId,
