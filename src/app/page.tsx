@@ -62,7 +62,7 @@ export default function Home() {
             <Link href="/chat/new">New Chat</Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/chat/listing">Existing Chats</Link>
+            <Link href="/chat/listing">Vorhandene Chats</Link>
           </Button>
         </section>
       </div>
